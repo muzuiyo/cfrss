@@ -21,7 +21,7 @@ preview_database_id = "ac7a1692-de9f-47b2-9a32-78a75fb61317"
 
 # Cron Trigger for RSS fetching
 [triggers]
-crons = ["*/30 * * * *"]  # Every 30 minutes by default
+crons = ["0 */12 * * *"]  # Every 12 hours
 
 # Development configuration
 [dev]
