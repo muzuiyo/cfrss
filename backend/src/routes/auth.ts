@@ -251,12 +251,16 @@ authRouter.get("/callback/github", async (c) => {
     );
     console.log("JWT token created successfully");
 
-    // Redirect to frontend with session token in URL
-    // Frontend will set the cookie via API call
+    // Set session cookie and redirect to frontend
+    const isSecure = c.req.url.startsWith("https://");
+    const url = new URL(frontendOrigin);
+    const domain = `.${url.hostname}`;
+
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `${frontendOrigin}/auth/callback?token=${token}`,
+        Location: frontendOrigin,
+        "Set-Cookie": `session=${token}; Path=/; Domain=${domain}; HttpOnly; Secure; SameSite=None; Max-Age=${7 * 24 * 60 * 60}`,
       },
     });
   } catch (error) {

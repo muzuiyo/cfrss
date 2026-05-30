@@ -62,10 +62,9 @@ export const authMiddleware = async (c: Context, next: Next) => {
     return next();
   }
 
-  // Get session token from Authorization header or cookie
-  const authHeader = c.req.header("Authorization") || "";
+  // Get session from cookie
   const cookieHeader = c.req.header("Cookie") || "";
-  const sessionToken = authHeader.replace("Bearer ", "") || cookieHeader.match(/session=([^;]+)/)?.[1];
+  const sessionToken = cookieHeader.match(/session=([^;]+)/)?.[1];
   const sessionSecret = c.env.SESSION_SECRET;
 
   if (!sessionToken || !sessionSecret) {
