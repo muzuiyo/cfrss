@@ -10,8 +10,11 @@ head_sampling_rate = 1
 
 [vars]
 ENVIRONMENT = "production"
-FRONTEND_ORIGIN = "https://rss.lain.today"  # Uncomment and set your frontend domain
-# ALLOWED_USER_EMAIL = "your-email@example.com"  # Uncomment to restrict access to specific email
+FRONTEND_ORIGIN = "https://rss.lain.today"
+# GITHUB_CLIENT_ID = "your-github-client-id"  # Uncomment and set your GitHub OAuth App client ID
+# GITHUB_CLIENT_SECRET = "your-github-client-secret"  # Uncomment and set your GitHub OAuth App client secret
+# SESSION_SECRET = "your-session-secret"  # Uncomment and set a random secret for JWT signing
+# ALLOWED_GITHUB_USER = "your-github-username"  # Uncomment to restrict access to specific GitHub user
 
 [[d1_databases]]
 binding = "DB"

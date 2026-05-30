@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { checkAuth, setAuth, clearAuth, type User } from "@/lib/auth";
+import { checkAuth, getLoginUrl, logout as authLogout, type User } from "@/lib/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -37,14 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [pathname, router]);
 
   const login = () => {
-    const mockUser: User = { email: "user@example.com" };
-    setAuth(mockUser);
-    setUser(mockUser);
-    router.push("/");
+    // Redirect to GitHub OAuth
+    window.location.href = getLoginUrl();
   };
 
-  const logout = () => {
-    clearAuth();
+  const logout = async () => {
+    await authLogout();
     setUser(null);
     router.push("/login");
   };

@@ -6,10 +6,11 @@ export interface Env {
   // Environment variables
   ENVIRONMENT: string;
   FRONTEND_ORIGIN?: string;
-  ALLOWED_USER_EMAIL?: string;
-  // Cloudflare Access headers (set by Cloudflare Access)
-  CF_ACCESS_JWT_ASSERTION?: string;
-  CF_ACCESS_AUTHENTICATED_USER_EMAIL?: string;
+  // GitHub OAuth
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  SESSION_SECRET?: string;
+  ALLOWED_GITHUB_USER?: string;
 }
 
 export interface AppContext {
@@ -17,7 +18,10 @@ export interface AppContext {
   Variables: {
     db: Database;
     user: {
-      email: string;
+      githubId?: number;
+      username?: string;
+      email?: string;
+      avatarUrl?: string;
     };
   };
 }

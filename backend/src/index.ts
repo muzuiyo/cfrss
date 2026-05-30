@@ -12,6 +12,7 @@ import feedsRouter from "./routes/feeds";
 import articlesRouter from "./routes/articles";
 import opmlRouter from "./routes/opml";
 import settingsRouter from "./routes/settings";
+import authRouter from "./routes/auth";
 
 const app = new Hono<AppContext>();
 
@@ -21,7 +22,7 @@ app.use("*", async (c, next) => {
   const corsMiddleware = cors({
     origin: corsOrigin.split(",").map(s => s.trim()),
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "Cf-Access-Jwt-Assertion", "Cf-Access-Authenticated-User-Email"],
+    allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     maxAge: 86400,
   });
@@ -47,6 +48,7 @@ app.get("/api/health", (c) => {
 app.use("/api/*", authMiddleware);
 
 // API routes
+app.route("/api/auth", authRouter);
 app.route("/api/feeds", feedsRouter);
 app.route("/api/articles", articlesRouter);
 app.route("/api/opml", opmlRouter);
