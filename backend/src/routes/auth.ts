@@ -239,13 +239,24 @@ authRouter.get("/callback/github", async (c) => {
     console.log("JWT token created successfully");
 
     // Redirect to frontend with session cookie
+    // Set cookie domain to allow sharing between subdomains
+    let cookieDomain = "";
+    if (!frontendOrigin.includes("localhost")) {
+      try {
+        const url = new URL(frontendOrigin);
+        // Use full hostname as domain (e.g., "rss.lain.today" -> ".rss.lain.today")
+        cookieDomain = `; Domain=.${url.hostname}`;
+      } catch {
+        // Ignore parsing errors
+      }
+    }
     return new Response(null, {
       status: 302,
       headers: {
         Location: frontendOrigin,
         "Set-Cookie": [
-          `session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}`,
-          `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+          `session=${token}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${7 * 24 * 60 * 60}${cookieDomain}`,
+          `oauth_state=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0${cookieDomain}`,
         ].join(", "),
       },
     });
