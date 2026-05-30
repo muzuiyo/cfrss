@@ -140,7 +140,20 @@ authRouter.get("/callback/github", async (c) => {
     });
 
     const tokenText = await tokenResponse.text();
-    console.log("GitHub token response:", tokenText);
+    // console.log("GitHub token response status:", tokenResponse.status);
+    // console.log("GitHub token response:", tokenText.substring(0, 500));
+
+    // Check if response is OK
+    if (!tokenResponse.ok) {
+      console.error("GitHub token exchange failed:", tokenResponse.status, tokenText);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${frontendOrigin}/login?error=${encodeURIComponent(`GitHub API error: ${tokenResponse.status}`)}`,
+          "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+        },
+      });
+    }
 
     let tokenData: Record<string, any>;
 
@@ -151,8 +164,6 @@ authRouter.get("/callback/github", async (c) => {
       const params = new URLSearchParams(tokenText);
       tokenData = Object.fromEntries(params);
     }
-
-    console.log("Parsed token data:", JSON.stringify(tokenData));
 
     if (tokenData.error) {
       console.error("GitHub OAuth error:", tokenData.error, tokenData.error_description);
@@ -166,7 +177,7 @@ authRouter.get("/callback/github", async (c) => {
     }
 
     if (!tokenData.access_token) {
-      console.error("No access_token in response. Full response:", tokenText);
+      console.error("No access_token in response:", tokenData);
       return new Response(null, {
         status: 302,
         headers: {
@@ -177,14 +188,31 @@ authRouter.get("/callback/github", async (c) => {
     }
 
     // Get user info from GitHub
+    console.log("Fetching user info from GitHub...");
     const userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
         Accept: "application/json",
+        "User-Agent": "RSS-Reader",
       },
     });
 
+    console.log("GitHub user response status:", userResponse.status);
+
+    if (!userResponse.ok) {
+      const errorText = await userResponse.text();
+      console.error("Failed to get user info:", userResponse.status, errorText);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${frontendOrigin}/login?error=${encodeURIComponent("Failed to get user info from GitHub")}`,
+          "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+        },
+      });
+    }
+
     const githubUser = (await userResponse.json()) as Record<string, any>;
+    console.log("GitHub user:", githubUser.login, githubUser.id);
 
     // Check if user is allowed
     if (allowedUser && githubUser.login !== allowedUser) {
@@ -198,6 +226,7 @@ authRouter.get("/callback/github", async (c) => {
     }
 
     // Create JWT token
+    console.log("Creating JWT token...");
     const token = await signJwt(
       {
         githubId: githubUser.id,
@@ -207,6 +236,7 @@ authRouter.get("/callback/github", async (c) => {
       },
       sessionSecret
     );
+    console.log("JWT token created successfully");
 
     // Redirect to frontend with session cookie
     return new Response(null, {
@@ -220,8 +250,15 @@ authRouter.get("/callback/github", async (c) => {
       },
     });
   } catch (error) {
+    console.error("OAuth callback error:", error);
     const message = error instanceof Error ? error.message : "Failed to authenticate";
-    return errorResponse(c, ErrorCodes.INTERNAL_ERROR, message, 500);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${frontendOrigin}/login?error=${encodeURIComponent(message)}`,
+        "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+      },
+    });
   }
 });
 
