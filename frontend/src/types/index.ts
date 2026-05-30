@@ -1,6 +1,7 @@
 export interface Feed {
   id: string;
   title: string;
+  custom_title: string | null;
   url: string;
   site_url: string | null;
   favicon: string | null;

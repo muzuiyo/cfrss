@@ -35,7 +35,7 @@ export const feedsApi = {
     const { data } = await api.post("/api/feeds", input);
     return data.data;
   },
-  update: async (id: string, input: { title?: string; category?: string }): Promise<Feed> => {
+  update: async (id: string, input: { title?: string; custom_title?: string; category?: string }): Promise<Feed> => {
     const { data } = await api.put(`/api/feeds/${id}`, input);
     return data.data;
   },

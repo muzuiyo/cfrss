@@ -1,10 +1,12 @@
--- Migration: Initial schema
+-- RSS Reader Database Schema
 -- Created: 2024-12-18
+-- Updated: 2026-05-31
 
 -- Feeds table
 CREATE TABLE IF NOT EXISTS feeds (
   id TEXT PRIMARY KEY NOT NULL,
   title TEXT NOT NULL,
+  custom_title TEXT,
   url TEXT NOT NULL UNIQUE,
   site_url TEXT,
   favicon TEXT,
@@ -36,16 +38,14 @@ CREATE TABLE IF NOT EXISTS articles (
   FOREIGN KEY (feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 
--- Unique index for article deduplication
-CREATE UNIQUE INDEX IF NOT EXISTS feed_guid_idx ON articles(feed_id, guid);
-
 -- Settings table
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY NOT NULL,
   value TEXT NOT NULL
 );
 
--- Indexes for common queries
+-- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS feed_guid_idx ON articles(feed_id, guid);
 CREATE INDEX IF NOT EXISTS idx_articles_feed_id ON articles(feed_id);
 CREATE INDEX IF NOT EXISTS idx_articles_is_read ON articles(is_read);
 CREATE INDEX IF NOT EXISTS idx_articles_is_starred ON articles(is_starred);

@@ -22,6 +22,7 @@ feedsRouter.get("/", async (c) => {
   return successResponse(c, allFeeds.map((f) => ({
     id: f.id,
     title: f.title,
+    custom_title: f.customTitle,
     url: f.url,
     site_url: f.siteUrl,
     favicon: f.favicon,
@@ -59,11 +60,11 @@ feedsRouter.post("/", zValidator("json", createFeedSchema, (result, c) => {
     const feedId = generateId();
 
     // Insert feed
-    const feedTitle = input.title || parsed.feed.title;
-
+    // title = RSS源标题, customTitle = 用户自定义标题
     await db.insert(feeds).values({
       id: feedId,
-      title: feedTitle,
+      title: parsed.feed.title,
+      customTitle: input.title || null,
       url: input.url,
       siteUrl: parsed.feed.link,
       category: input.category,
@@ -86,6 +87,7 @@ feedsRouter.post("/", zValidator("json", createFeedSchema, (result, c) => {
     return successResponse(c, {
       id: created.id,
       title: created.title,
+      custom_title: created.customTitle,
       url: created.url,
       site_url: created.siteUrl,
       favicon: created.favicon,
@@ -121,12 +123,14 @@ feedsRouter.put("/:id", zValidator("json", updateFeedSchema, (result, c) => {
   }
 
   // Update feed
+  const updateData: Record<string, any> = { updatedAt: new Date() };
+  if (input.title !== undefined) updateData.title = input.title;
+  if (input.custom_title !== undefined) updateData.customTitle = input.custom_title;
+  if (input.category !== undefined) updateData.category = input.category;
+
   await db
     .update(feeds)
-    .set({
-      ...input,
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(feeds.id, feedId));
 
   // Get updated feed
@@ -141,6 +145,7 @@ feedsRouter.put("/:id", zValidator("json", updateFeedSchema, (result, c) => {
   return successResponse(c, {
     id: updated.id,
     title: updated.title,
+    custom_title: updated.customTitle,
     url: updated.url,
     site_url: updated.siteUrl,
     favicon: updated.favicon,

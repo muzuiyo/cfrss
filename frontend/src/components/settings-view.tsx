@@ -40,6 +40,7 @@ export function SettingsView() {
   const [newFeedTitle, setNewFeedTitle] = useState("");
   const [newFeedCategory, setNewFeedCategory] = useState("");
   const [editingFeedId, setEditingFeedId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [feedsPage, setFeedsPage] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -249,11 +250,25 @@ export function SettingsView() {
                           <Rss className="h-4 w-4 shrink-0 text-muted-foreground" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{feed.title}</p>
+                          <p className="text-sm font-medium truncate">{feed.custom_title || feed.title}</p>
                           <p className="text-xs text-muted-foreground truncate">{feed.url}</p>
                         </div>
                         {editingFeedId === feed.id ? (
                           <div className="flex items-center gap-1 shrink-0">
+                            <Input
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              placeholder="Custom title"
+                              className="h-7 w-28 text-xs"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
+                                  setEditingFeedId(null);
+                                }
+                                if (e.key === "Escape") setEditingFeedId(null);
+                              }}
+                              autoFocus
+                            />
                             <Input
                               value={editCategory}
                               onChange={(e) => setEditCategory(e.target.value)}
@@ -261,19 +276,18 @@ export function SettingsView() {
                               className="h-7 w-24 text-xs"
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                  updateFeed.mutate({ id: feed.id, input: { category: editCategory || undefined } });
+                                  updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
                                   setEditingFeedId(null);
                                 }
                                 if (e.key === "Escape") setEditingFeedId(null);
                               }}
-                              autoFocus
                             />
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7"
                               onClick={() => {
-                                updateFeed.mutate({ id: feed.id, input: { category: editCategory || undefined } });
+                                updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
                                 setEditingFeedId(null);
                               }}
                             >
@@ -285,9 +299,10 @@ export function SettingsView() {
                             className="text-xs text-muted-foreground shrink-0 hover:text-foreground cursor-pointer"
                             onClick={() => {
                               setEditingFeedId(feed.id);
+                              setEditTitle(feed.custom_title ?? "");
                               setEditCategory(feed.category ?? "");
                             }}
-                            title="Click to edit category"
+                            title="Click to edit title and category"
                           >
                             {feed.category || "No category"}
                           </button>

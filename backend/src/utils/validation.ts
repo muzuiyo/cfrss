@@ -9,6 +9,7 @@ export const createFeedSchema = z.object({
 
 export const updateFeedSchema = z.object({
   title: z.string().optional(),
+  custom_title: z.string().optional(),
   category: z.string().optional(),
 });
 

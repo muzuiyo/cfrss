@@ -157,7 +157,7 @@ export function Sidebar({ currentView, currentFeedId, onViewChange, className }:
                       ) : (
                         <Rss className="h-3.5 w-3.5 shrink-0" />
                       )}
-                      <span className="flex-1 text-left truncate min-w-0">{feed.title}</span>
+                      <span className="flex-1 text-left truncate min-w-0">{feed.custom_title || feed.title}</span>
                       {feed.unread_count > 0 && (
                         <span className="text-xs shrink-0">{feed.unread_count}</span>
                       )}

@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 export const feeds = sqliteTable("feeds", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
+  customTitle: text("custom_title"),
   url: text("url").notNull().unique(),
   siteUrl: text("site_url"),
   favicon: text("favicon"),
