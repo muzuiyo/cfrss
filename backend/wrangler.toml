@@ -1,0 +1,24 @@
+name = "rss-reader-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+# FRONTEND_ORIGIN = "https://your-frontend-domain.com"  # Uncomment and set your frontend domain
+# ALLOWED_USER_EMAIL = "your-email@example.com"  # Uncomment to restrict access to specific email
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rss-reader"
+database_id = "placeholder-replace-with-real-id"  # Replace with your actual D1 database ID
+preview_database_id = "ac7a1692-de9f-47b2-9a32-78a75fb61317"
+
+# Cron Trigger for RSS fetching
+[triggers]
+crons = ["*/30 * * * *"]  # Every 30 minutes by default
+
+# Development configuration
+[dev]
+port = 8787
+local_protocol = "http"

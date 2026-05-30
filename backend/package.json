@@ -1,0 +1,31 @@
+{
+  "name": "rss-reader-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply rss-reader",
+    "db:migrate:local": "wrangler d1 migrations apply rss-reader --local",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/db/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.5.0",
+    "drizzle-orm": "^0.38.0",
+    "hono": "^4.6.0",
+    "rss-parser": "^3.13.0",
+    "xml2js": "^0.6.2",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@types/xml2js": "^0.4.14",
+    "drizzle-kit": "^0.30.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.100.0"
+  }
+}
