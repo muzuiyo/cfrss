@@ -42,6 +42,8 @@ feedsRouter.post("/", zValidator("json", createFeedSchema, (result, c) => {
   const db = c.get("db");
   const input = c.req.valid("json");
 
+  console.log("Add feed input:", JSON.stringify(input));
+
   // Check for duplicate URL
   const existing = await db.query.feeds.findFirst({
     where: eq(feeds.url, input.url),
@@ -59,9 +61,12 @@ feedsRouter.post("/", zValidator("json", createFeedSchema, (result, c) => {
     const feedId = generateId();
 
     // Insert feed
+    const feedTitle = input.title || parsed.feed.title;
+    console.log("Inserting feed:", { title: feedTitle, inputTitle: input.title, parsedTitle: parsed.feed.title });
+
     await db.insert(feeds).values({
       id: feedId,
-      title: input.title || parsed.feed.title,
+      title: feedTitle,
       url: input.url,
       siteUrl: parsed.feed.link,
       category: input.category,
