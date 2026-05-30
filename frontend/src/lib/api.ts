@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import type { Feed, Article, Settings, PaginatedResponse } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -7,6 +8,15 @@ const api = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
+});
+
+// Request interceptor - add Authorization header
+api.interceptors.request.use((config) => {
+  const token = Cookies.get("session");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Response interceptor

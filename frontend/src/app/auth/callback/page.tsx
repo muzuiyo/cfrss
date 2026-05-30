@@ -12,11 +12,12 @@ export default function AuthCallbackPage() {
     const token = searchParams.get("token");
     if (token) {
       // Set session cookie (accessible by JavaScript for API calls)
+      const isSecure = window.location.protocol === "https:";
       Cookies.set("session", token, {
         expires: 7,
         path: "/",
-        secure: true,
-        sameSite: "lax",
+        secure: isSecure,
+        sameSite: isSecure ? "none" : "lax",
       });
       router.push("/");
     } else {

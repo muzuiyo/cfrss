@@ -88,6 +88,10 @@ authRouter.get("/github", (c) => {
   const state = generateState();
 
   // Store state in cookie for verification
+  const isSecure = c.req.url.startsWith("https://");
+  const secureFlag = isSecure ? "Secure; " : "";
+  const sameSite = isSecure ? "SameSite=None" : "SameSite=Lax";
+
   const githubUrl = new URL("https://github.com/login/oauth/authorize");
   githubUrl.searchParams.set("client_id", clientId);
   githubUrl.searchParams.set("redirect_uri", redirectUri);
@@ -98,7 +102,7 @@ authRouter.get("/github", (c) => {
     status: 302,
     headers: {
       Location: githubUrl.toString(),
-      "Set-Cookie": `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+      "Set-Cookie": `oauth_state=${state}; Path=/; HttpOnly; ${secureFlag}${sameSite}; Max-Age=600`,
     },
   });
 });
@@ -111,7 +115,16 @@ authRouter.get("/callback/github", async (c) => {
   const savedState = cookieHeader.match(/oauth_state=([^;]+)/)?.[1];
 
   if (!code || !state || state !== savedState) {
-    return errorResponse(c, ErrorCodes.INVALID_REQUEST, "Invalid OAuth state", 400);
+    // Clear invalid state cookie
+    const isSecure = c.req.url.startsWith("https://");
+    const secureFlag = isSecure ? "Secure; " : "";
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${c.env.FRONTEND_ORIGIN || "http://localhost:3000"}/login?error=invalid_state`,
+        "Set-Cookie": `oauth_state=; Path=/; HttpOnly; ${secureFlag}Max-Age=0`,
+      },
+    });
   }
 
   const clientId = c.env.GITHUB_CLIENT_ID;
