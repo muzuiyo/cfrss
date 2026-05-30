@@ -76,7 +76,7 @@ export const fetchFeed = async (db: Database, feedId: string): Promise<{
     await db
       .update(feeds)
       .set({
-        title: result.feed.title || feed.title,
+        title: feed.title,
         siteUrl: result.feed.link || feed.siteUrl,
         etag: result.etag || feed.etag,
         lastModified: result.lastModified || feed.lastModified,
