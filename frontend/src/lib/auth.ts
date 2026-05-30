@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export interface User {
@@ -9,9 +11,17 @@ export interface User {
 
 // Check if user is authenticated by verifying with backend
 export const checkAuth = async (): Promise<User | null> => {
+  const sessionToken = Cookies.get("session");
+  if (!sessionToken) {
+    return null;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       credentials: "include",
+      headers: {
+        "Authorization": `Bearer ${sessionToken}`,
+      },
     });
 
     if (res.ok) {
@@ -19,6 +29,8 @@ export const checkAuth = async (): Promise<User | null> => {
       return data.data as User;
     }
 
+    // Token invalid, remove cookie
+    Cookies.remove("session");
     return null;
   } catch {
     return null;
@@ -32,6 +44,7 @@ export const getLoginUrl = (): string => {
 
 // Logout
 export const logout = async (): Promise<void> => {
+  Cookies.remove("session");
   try {
     await fetch(`${API_BASE}/api/auth/logout`, {
       method: "POST",
