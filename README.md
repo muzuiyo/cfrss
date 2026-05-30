@@ -11,12 +11,13 @@
 
 ### 核心功能
 - ✅ RSS 2.0 和 Atom 格式支持
-- ✅ 自动定时抓取（Cron Trigger）
+- ✅ 自动定时抓取（Cron Trigger，每 12 小时）
 - ✅ ETag / Last-Modified 条件请求支持
 - ✅ 文章已读/未读状态管理
 - ✅ 文章收藏功能
 - ✅ OPML 导入/导出
 - ✅ 响应式设计，支持移动端
+- ✅ GitHub OAuth 登录（单用户）
 
 ### 界面特性
 - ✅ 主题切换（Light / Dark / System）
@@ -137,6 +138,7 @@ cfrss/
 4. **访问应用**
    - 前端: http://localhost:3000
    - 后端 API: http://localhost:8787
+   - 本地开发时会跳过 GitHub OAuth 认证
 
 ### 部署
 
@@ -153,15 +155,29 @@ cfrss/
    npm run deploy
    ```
 
-2. **部署前端**
-   - 推荐使用 Vercel 或 Cloudflare Pages
+2. **配置 GitHub OAuth**
+   - 访问 [github.com/settings/developers](https://github.com/settings/developers)
+   - 创建 OAuth App，回调 URL 设置为 `https://你的Worker域名/api/auth/callback/github`
+   - 在 Cloudflare Dashboard 设置环境变量：
+     - `GITHUB_CLIENT_ID` - GitHub OAuth Client ID
+     - `GITHUB_CLIENT_SECRET` - GitHub OAuth Client Secret
+     - `SESSION_SECRET` - JWT 签名密钥（随机字符串）
+     - `ALLOWED_GITHUB_USER` - 允许登录的 GitHub 用户名（可选）
+
+3. **部署前端**
+   - 推荐使用 Cloudflare Pages 或 Vercel
    - 设置环境变量 `NEXT_PUBLIC_API_URL` 为后端 URL
 
-3. **配置 Cloudflare Access**
-   - 在 Cloudflare Zero Trust 中配置 Access 策略
-   - 允许指定 GitHub 账号访问
-
 ## API 文档
+
+### Auth
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/auth/github` | 发起 GitHub OAuth 登录 |
+| GET | `/api/auth/callback/github` | GitHub OAuth 回调 |
+| GET | `/api/auth/me` | 获取当前用户信息 |
+| POST | `/api/auth/logout` | 登出 |
 
 ### Feeds
 
@@ -222,13 +238,18 @@ cfrss/
 
 ### 环境变量
 
-#### 后端 (wrangler.toml)
-```toml
-[vars]
-CF_ACCESS_AUD = "your-access-aud"  # Cloudflare Access AUD
-```
+#### 后端 (Cloudflare Dashboard 或 wrangler.toml)
+
+| 变量名 | 说明 | 必需 |
+|--------|------|------|
+| `GITHUB_CLIENT_ID` | GitHub OAuth Client ID | ✅ |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth Client Secret | ✅ |
+| `SESSION_SECRET` | JWT 签名密钥 | ✅ |
+| `ALLOWED_GITHUB_USER` | 允许登录的 GitHub 用户名(该项目设计上为单用户应用) | ✅ |
+| `FRONTEND_ORIGIN` | 前端域名（用于 CORS） | ❌ |
 
 #### 前端 (.env.local)
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8787  # 后端 API 地址
 ```
