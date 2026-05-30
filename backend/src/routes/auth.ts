@@ -140,6 +140,8 @@ authRouter.get("/callback/github", async (c) => {
     });
 
     const tokenText = await tokenResponse.text();
+    console.log("GitHub token response:", tokenText);
+
     let tokenData: Record<string, any>;
 
     try {
@@ -150,11 +152,25 @@ authRouter.get("/callback/github", async (c) => {
       tokenData = Object.fromEntries(params);
     }
 
+    console.log("Parsed token data:", JSON.stringify(tokenData));
+
     if (tokenData.error) {
+      console.error("GitHub OAuth error:", tokenData.error, tokenData.error_description);
       return new Response(null, {
         status: 302,
         headers: {
           Location: `${frontendOrigin}/login?error=${encodeURIComponent(tokenData.error_description || tokenData.error)}`,
+          "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+        },
+      });
+    }
+
+    if (!tokenData.access_token) {
+      console.error("No access_token in response. Full response:", tokenText);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${frontendOrigin}/login?error=${encodeURIComponent("Failed to get access token")}`,
           "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
         },
       });
