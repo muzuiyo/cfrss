@@ -185,8 +185,16 @@ export function Sidebar({ currentView, currentFeedId, onViewChange, className }:
           <span className="flex-1 text-left">Settings</span>
         </button>
         <div className="flex items-center gap-3 px-3 py-2">
+          {user?.avatarUrl && (
+            <img
+              src={user.avatarUrl}
+              alt={user.username || "User"}
+              className="h-8 w-8 rounded-full shrink-0"
+            />
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-sm font-medium truncate">{user?.username || "User"}</p>
+            <p className="text-xs text-muted-foreground truncate">GitHub</p>
           </div>
           <AlertDialog>
             <AlertDialogTrigger render={<Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" />}>

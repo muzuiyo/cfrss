@@ -55,11 +55,16 @@ export function SettingsView() {
 
   const handleAddFeed = async () => {
     if (!newFeedUrl.trim()) return;
-    await addFeed.mutateAsync({
+    const input: { url: string; title?: string; category?: string } = {
       url: newFeedUrl,
-      title: newFeedTitle || undefined,
-      category: newFeedCategory || undefined,
-    });
+    };
+    if (newFeedTitle.trim()) {
+      input.title = newFeedTitle.trim();
+    }
+    if (newFeedCategory.trim()) {
+      input.category = newFeedCategory.trim();
+    }
+    await addFeed.mutateAsync(input);
     setNewFeedUrl("");
     setNewFeedTitle("");
     setNewFeedCategory("");
