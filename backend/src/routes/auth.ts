@@ -139,9 +139,25 @@ authRouter.get("/callback/github", async (c) => {
       }),
     });
 
-    const tokenData = (await tokenResponse.json()) as Record<string, any>;
+    const tokenText = await tokenResponse.text();
+    let tokenData: Record<string, any>;
+
+    try {
+      tokenData = JSON.parse(tokenText);
+    } catch {
+      // GitHub sometimes returns form-encoded response
+      const params = new URLSearchParams(tokenText);
+      tokenData = Object.fromEntries(params);
+    }
+
     if (tokenData.error) {
-      return errorResponse(c, ErrorCodes.UNAUTHORIZED, `GitHub OAuth error: ${tokenData.error_description}`, 401);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${frontendOrigin}/login?error=${encodeURIComponent(tokenData.error_description || tokenData.error)}`,
+          "Set-Cookie": `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+        },
+      });
     }
 
     // Get user info from GitHub
