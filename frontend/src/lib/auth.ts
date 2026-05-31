@@ -1,4 +1,5 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+const IS_LOCAL = API_BASE.includes("localhost") || API_BASE.includes("127.0.0.1");
 
 export interface User {
   githubId?: number;
@@ -9,6 +10,11 @@ export interface User {
 
 // Check if user is authenticated by verifying with backend
 export const checkAuth = async (): Promise<User | null> => {
+  // In local development, return a mock user
+  if (IS_LOCAL) {
+    return { username: "dev", email: "dev@localhost" };
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       credentials: "include",

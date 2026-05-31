@@ -10,11 +10,11 @@ head_sampling_rate = 1
 
 [vars]
 ENVIRONMENT = "production"
-FRONTEND_ORIGIN = "https://rss.lain.today"
-# GITHUB_CLIENT_ID = "your-github-client-id"  # Uncomment and set your GitHub OAuth App client ID
-# GITHUB_CLIENT_SECRET = "your-github-client-secret"  # Uncomment and set your GitHub OAuth App client secret
-# SESSION_SECRET = "your-session-secret"  # Uncomment and set a random secret for JWT signing
-# ALLOWED_GITHUB_USER = "your-github-username"  # Uncomment to restrict access to specific GitHub user
+# FRONTEND_ORIGIN = "https://localhost:3000"
+# GITHUB_CLIENT_ID = ""       # Set via Cloudflare Dashboard (Secrets)
+# GITHUB_CLIENT_SECRET = ""   # Set via Cloudflare Dashboard (Secrets)
+# SESSION_SECRET = ""         # Set via Cloudflare Dashboard (Secrets)
+# ALLOWED_GITHUB_USER = ""    # Set via Cloudflare Dashboard (optional)
 
 [[d1_databases]]
 binding = "DB"
