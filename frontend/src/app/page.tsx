@@ -220,7 +220,7 @@ export default function HomePage() {
       {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
-        <div className="hidden md:flex shrink-0 border-r max-w-xs">
+        <div className="hidden md:flex shrink-0 min-w-50 max-w-xs">
           {sidebarContent}
         </div>
 

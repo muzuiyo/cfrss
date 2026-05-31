@@ -75,7 +75,7 @@ export function Sidebar({ currentView, currentFeedId, onViewChange, className }:
   ];
 
   return (
-    <aside className={cn("flex flex-col h-full bg-card border-r overflow-hidden", className)}>
+    <aside className={cn("flex flex-col h-full w-full bg-card border-r overflow-hidden", className)}>
       {/* Header - pr-12 on mobile to avoid overlapping with Sheet close button */}
       <div className="flex items-center justify-between h-14 px-4 pr-12 md:pr-4 border-b shrink-0">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => onViewChange("all")}>
