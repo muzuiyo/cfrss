@@ -99,11 +99,12 @@ export default function HomePage() {
   }, [view, currentFeed]);
 
   // Sidebar content
-  const sidebarContent = (
+  const sidebarContent = (onClose?: () => void) => (
     <Sidebar
       currentView={view}
       currentFeedId={feedId}
       onViewChange={handleViewChange}
+      onClose={onClose}
     />
   );
 
@@ -197,8 +198,8 @@ export default function HomePage() {
               <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8" />}>
                 <Menu className="h-5 w-5" />
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-72">
-                {sidebarContent}
+              <SheetContent side="left" className="p-0 w-72" showCloseButton={false}>
+                {sidebarContent(() => setSidebarOpen(false))}
               </SheetContent>
             </Sheet>
             <span className="font-semibold text-sm truncate flex-1">{viewTitle}</span>
@@ -221,7 +222,7 @@ export default function HomePage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:flex shrink-0 min-w-50 max-w-xs">
-          {sidebarContent}
+          {sidebarContent()}
         </div>
 
         {/* Desktop main area */}

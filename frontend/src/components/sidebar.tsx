@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ChevronRight,
   AlertTriangle,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { useFeeds, useRefreshAllFeeds } from "@/hooks/use-feeds";
@@ -39,10 +40,11 @@ interface SidebarProps {
   currentView: View;
   currentFeedId?: string | null;
   onViewChange: (view: View, feedId?: string) => void;
+  onClose?: () => void;
   className?: string;
 }
 
-export function Sidebar({ currentView, currentFeedId, onViewChange, className }: SidebarProps) {
+export function Sidebar({ currentView, currentFeedId, onViewChange, onClose, className }: SidebarProps) {
   const { user, logout } = useAuth();
   const { data: feeds = [] } = useFeeds();
   const { data: stats } = useArticleStats();
@@ -76,23 +78,35 @@ export function Sidebar({ currentView, currentFeedId, onViewChange, className }:
 
   return (
     <aside className={cn("flex flex-col h-full w-full bg-card border-r overflow-hidden", className)}>
-      {/* Header - pr-12 on mobile to avoid overlapping with Sheet close button */}
-      <div className="flex items-center justify-between h-14 px-4 pr-12 md:pr-4 border-b shrink-0">
-        <Link href="/" className="flex items-center gap-2.5" onClick={() => onViewChange("all")}>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 h-14 px-3 border-b shrink-0">
+        <Link href="/" className="flex items-center gap-1" onClick={() => onViewChange("all")}>
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
             <Rss className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-semibold text-sm">RSS Reader</span>
         </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => refreshAll.mutate()}
-          disabled={refreshAll.isPending}
-        >
-          <RefreshCw className={cn("h-4 w-4", refreshAll.isPending && "animate-spin")} />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => refreshAll.mutate()}
+            disabled={refreshAll.isPending}
+          >
+            <RefreshCw className={cn("h-4 w-4", refreshAll.isPending && "animate-spin")} />
+          </Button>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={onClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
