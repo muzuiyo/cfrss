@@ -44,6 +44,16 @@ app.get("/api/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Root endpoint
+app.get("/", (c) => {
+  return c.json({
+    name: "RSS Reader API",
+    version: "1.0.0",
+    status: "running",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Auth middleware for all other API routes
 app.use("/api/*", authMiddleware);
 
