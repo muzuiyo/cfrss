@@ -126,6 +126,7 @@ feedsRouter.put("/:id", zValidator("json", updateFeedSchema, (result, c) => {
   const updateData: Record<string, any> = { updatedAt: new Date() };
   if (input.title !== undefined) updateData.title = input.title;
   if (input.custom_title !== undefined) updateData.customTitle = input.custom_title;
+  if (input.url !== undefined) updateData.url = input.url;
   if (input.category !== undefined) updateData.category = input.category;
 
   await db

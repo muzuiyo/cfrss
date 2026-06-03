@@ -10,6 +10,7 @@ export const createFeedSchema = z.object({
 export const updateFeedSchema = z.object({
   title: z.string().optional(),
   custom_title: z.string().optional(),
+  url: z.string().url("Invalid feed URL").optional(),
   category: z.string().optional(),
 });
 

@@ -103,3 +103,30 @@ export const useMarkAllRead = () => {
     onError: (e: Error) => toast.error(e.message),
   });
 };
+
+export const useMarkFeedRead = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: articlesApi.markFeedRead,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: articleKeys.all });
+      qc.invalidateQueries({ queryKey: articleKeys.stats });
+      qc.invalidateQueries({ queryKey: ["feeds"] });
+      toast.success("Feed marked as read");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};
+
+export const useUnstarAll = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: articlesApi.unstarAll,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: articleKeys.all });
+      qc.invalidateQueries({ queryKey: articleKeys.stats });
+      toast.success("All articles unstarred");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+};

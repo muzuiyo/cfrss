@@ -61,7 +61,7 @@ export const useDeleteAllFeeds = () => {
 export const useUpdateFeed = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: { title?: string; custom_title?: string; category?: string } }) =>
+    mutationFn: ({ id, input }: { id: string; input: { title?: string; custom_title?: string; url?: string; category?: string } }) =>
       feedsApi.update(id, input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: feedKeys.all });

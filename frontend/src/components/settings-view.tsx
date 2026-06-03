@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings2, FileText, Database, Plus, Trash2, Save, Upload, Download, ChevronLeft, ChevronRight, Rss, AlertTriangle } from "lucide-react";
+import { Settings2, FileText, Database, Plus, Trash2, Save, Upload, Download, ChevronLeft, ChevronRight, Rss, AlertTriangle, Edit, Settings as SettingsIcon } from "lucide-react";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { useFeeds, useAddFeed, useDeleteFeed, useDeleteAllFeeds, useUpdateFeed } from "@/hooks/use-feeds";
 import { useMarkAllRead } from "@/hooks/use-articles";
@@ -23,6 +23,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Settings } from "@/types";
 
 export function SettingsView() {
@@ -39,9 +47,7 @@ export function SettingsView() {
   const [newFeedUrl, setNewFeedUrl] = useState("");
   const [newFeedTitle, setNewFeedTitle] = useState("");
   const [newFeedCategory, setNewFeedCategory] = useState("");
-  const [editingFeedId, setEditingFeedId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editCategory, setEditCategory] = useState("");
+  const [editDialogFeed, setEditDialogFeed] = useState<{ id: string; title: string; url: string; custom_title: string; category: string } | null>(null);
   const [feedsPage, setFeedsPage] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedsPerPage = 20;
@@ -253,63 +259,23 @@ export function SettingsView() {
                           <p className="text-sm font-medium truncate">{feed.custom_title || feed.title}</p>
                           <p className="text-xs text-muted-foreground truncate">{feed.url}</p>
                         </div>
-                        {editingFeedId === feed.id ? (
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Input
-                              value={editTitle}
-                              onChange={(e) => setEditTitle(e.target.value)}
-                              placeholder="Custom title"
-                              className="h-7 w-28 text-xs"
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
-                                  setEditingFeedId(null);
-                                }
-                                if (e.key === "Escape") setEditingFeedId(null);
-                              }}
-                              autoFocus
-                            />
-                            <Input
-                              value={editCategory}
-                              onChange={(e) => setEditCategory(e.target.value)}
-                              placeholder="Category"
-                              className="h-7 w-24 text-xs"
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
-                                  setEditingFeedId(null);
-                                }
-                                if (e.key === "Escape") setEditingFeedId(null);
-                              }}
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => {
-                                updateFeed.mutate({ id: feed.id, input: { custom_title: editTitle || undefined, category: editCategory || undefined } });
-                                setEditingFeedId(null);
-                              }}
-                            >
-                              <Save className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <button
-                            className="text-xs text-muted-foreground shrink-0 hover:text-foreground cursor-pointer"
-                            onClick={() => {
-                              setEditingFeedId(feed.id);
-                              setEditTitle(feed.custom_title ?? "");
-                              setEditCategory(feed.category ?? "");
-                            }}
-                            title="Click to edit title and category"
-                          >
-                            {feed.category || "No category"}
-                          </button>
-                        )}
                         <span className="text-xs text-muted-foreground shrink-0">
                           {feed.unread_count} unread
                         </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 shrink-0"
+                          onClick={() => setEditDialogFeed({
+                            id: feed.id,
+                            title: feed.title,
+                            url: feed.url,
+                            custom_title: feed.custom_title ?? "",
+                            category: feed.category ?? "",
+                          })}
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
                         <AlertDialog>
                           <AlertDialogTrigger render={<Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" />}>
                             <Trash2 className="h-3.5 w-3.5 text-destructive" />
@@ -326,7 +292,7 @@ export function SettingsView() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteFeed(feed.id, feed.title)}>
+                              <AlertDialogAction variant="destructive" onClick={() => handleDeleteFeed(feed.id, feed.title)}>
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -422,7 +388,7 @@ export function SettingsView() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => markAllRead.mutate()}>
+                    <AlertDialogAction variant="destructive" onClick={() => markAllRead.mutate()}>
                       Mark All as Read
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -445,7 +411,7 @@ export function SettingsView() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteAllFeeds.mutate()}>
+                    <AlertDialogAction variant="destructive" onClick={() => deleteAllFeeds.mutate()}>
                       Delete All
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -455,6 +421,78 @@ export function SettingsView() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Subscription Dialog */}
+      <Dialog open={!!editDialogFeed} onOpenChange={(open) => !open && setEditDialogFeed(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <SettingsIcon className="h-5 w-5" />
+              Edit Subscription
+            </DialogTitle>
+            <DialogDescription>
+              Edit the details for this subscription.
+            </DialogDescription>
+          </DialogHeader>
+          {editDialogFeed && (
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <Label className="text-sm">Title</Label>
+                <Input
+                  value={editDialogFeed.title}
+                  disabled
+                  className="opacity-50"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-sm">Custom Title</Label>
+                <Input
+                  placeholder="Leave empty to use original title"
+                  value={editDialogFeed.custom_title}
+                  onChange={(e) => setEditDialogFeed({ ...editDialogFeed, custom_title: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-sm">Feed URL</Label>
+                <Input
+                  value={editDialogFeed.url}
+                  onChange={(e) => setEditDialogFeed({ ...editDialogFeed, url: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-sm">Category</Label>
+                <Input
+                  placeholder="Leave empty for Uncategorized"
+                  value={editDialogFeed.category}
+                  onChange={(e) => setEditDialogFeed({ ...editDialogFeed, category: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogFeed(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editDialogFeed) {
+                  updateFeed.mutate({
+                    id: editDialogFeed.id,
+                    input: {
+                      custom_title: editDialogFeed.custom_title || undefined,
+                      url: editDialogFeed.url,
+                      category: editDialogFeed.category || undefined,
+                    },
+                  });
+                }
+                setEditDialogFeed(null);
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ScrollArea>
   );
 }

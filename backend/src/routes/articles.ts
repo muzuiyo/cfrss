@@ -419,4 +419,16 @@ articlesRouter.post("/mark-feed-read/:id", async (c) => {
   return successResponse(c, { feedId, marked: true });
 });
 
+// POST /api/articles/unstar-all - Unstar all articles
+articlesRouter.post("/unstar-all", async (c) => {
+  const db = c.get("db");
+
+  await db
+    .update(articles)
+    .set({ isStarred: 0, updatedAt: new Date() })
+    .where(eq(articles.isStarred, 1));
+
+  return successResponse(c, { unstarred: true });
+});
+
 export default articlesRouter;
