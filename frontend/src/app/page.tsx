@@ -171,7 +171,7 @@ export default function HomePage() {
             <Circle className="h-4 w-4 text-muted-foreground" />
           )}
         </Button>
-        <Separator orientation="vertical" className="h-5 mx-1 self-center" />
+        <Separator orientation="vertical" className="h-5 mx-1" />
         <Button
           variant="ghost"
           size="icon"
