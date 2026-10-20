@@ -133,11 +133,11 @@ authRouter.get("/callback/github", async (c) => {
   const allowedUser = c.env.ALLOWED_GITHUB_USER;
   const frontendOrigin = c.env.FRONTEND_ORIGIN || "http://localhost:3000";
 
-  if (!clientId || !clientSecret || !sessionSecret || !allowedUser) {
+  if (!clientId || !clientSecret || !sessionSecret) {
     return errorResponse(
       c,
       ErrorCodes.INTERNAL_ERROR,
-      "GitHub OAuth not configured (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SESSION_SECRET, ALLOWED_GITHUB_USER are all required)",
+      "GitHub OAuth not configured (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SESSION_SECRET are all required)",
       500
     );
   }
