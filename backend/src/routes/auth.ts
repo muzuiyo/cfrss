@@ -133,8 +133,13 @@ authRouter.get("/callback/github", async (c) => {
   const allowedUser = c.env.ALLOWED_GITHUB_USER;
   const frontendOrigin = c.env.FRONTEND_ORIGIN || "http://localhost:3000";
 
-  if (!clientId || !clientSecret || !sessionSecret) {
-    return errorResponse(c, ErrorCodes.INTERNAL_ERROR, "GitHub OAuth not configured", 500);
+  if (!clientId || !clientSecret || !sessionSecret || !allowedUser) {
+    return errorResponse(
+      c,
+      ErrorCodes.INTERNAL_ERROR,
+      "GitHub OAuth not configured (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SESSION_SECRET, ALLOWED_GITHUB_USER are all required)",
+      500
+    );
   }
 
   try {
@@ -291,6 +296,14 @@ authRouter.get("/me", async (c) => {
     return errorResponse(c, ErrorCodes.UNAUTHORIZED, "Invalid session", 401);
   }
 
+  // Enforce the allow-list on the session-check endpoint too, otherwise a
+  // token issued before ALLOWED_GITHUB_USER was configured (valid for 7 days)
+  // keeps reporting the user as logged in.
+  const allowedUser = c.env.ALLOWED_GITHUB_USER;
+  if (allowedUser && payload.username !== allowedUser) {
+    return errorResponse(c, ErrorCodes.UNAUTHORIZED, "Access denied", 403);
+  }
+
   return successResponse(c, {
     githubId: payload.githubId,
     username: payload.username,
@@ -302,12 +315,16 @@ authRouter.get("/me", async (c) => {
 // POST /api/auth/logout - Logout
 authRouter.post("/logout", (c) => {
   const frontendOrigin = c.env.FRONTEND_ORIGIN || "http://localhost:3000";
+  // The clearing cookie must match the login cookie's attributes
+  // (Domain / SameSite / Secure) or the browser won't overwrite it.
+  const url = new URL(frontendOrigin);
+  const domain = `.${url.hostname}`;
 
   return new Response(null, {
     status: 302,
     headers: {
       Location: `${frontendOrigin}/login`,
-      "Set-Cookie": `session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+      "Set-Cookie": `session=; Path=/; Domain=${domain}; HttpOnly; Secure; SameSite=None; Max-Age=0`,
     },
   });
 });
