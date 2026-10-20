@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { deleteCookie } from "hono/cookie";
 import type { AppContext } from "../types";
 import { successResponse, errorResponse, ErrorCodes } from "../utils/response";
 
@@ -319,14 +320,14 @@ authRouter.post("/logout", (c) => {
   // (Domain / SameSite / Secure) or the browser won't overwrite it.
   const url = new URL(frontendOrigin);
   const domain = `.${url.hostname}`;
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: `${frontendOrigin}/login`,
-      "Set-Cookie": `session=; Path=/; Domain=${domain}; HttpOnly; Secure; SameSite=None; Max-Age=0`,
-    },
+  deleteCookie(c, "session", {
+    path: "/",
+    domain,
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
   });
+  return c.redirect(`${frontendOrigin}/login`);
 });
 
 export default authRouter;
