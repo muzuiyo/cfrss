@@ -40,12 +40,9 @@ const verifyJwt = async (token: string, secret: string): Promise<Record<string, 
 };
 
 export const authMiddleware = async (c: Context, next: Next) => {
-  // Skip auth for cron triggers (they come from Cloudflare)
-  const cronHeader = c.req.header("cf-cron");
-  if (cronHeader) {
-    c.set("user", { username: "cron" });
-    return next();
-  }
+  // Note: cron triggers are handled by the `scheduled` handler in index.ts,
+  // they never arrive as HTTP requests. Never trust a request header (e.g.
+  // `cf-cron`) to skip authentication - it can be spoofed by any client.
 
   // Skip auth for auth routes
   if (c.req.path.startsWith("/api/auth/")) {
